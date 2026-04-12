@@ -1,0 +1,36 @@
+変更ファイルをステージング
+git add .
+
+特定のファイルだけなら
+git add ファイル名
+
+コミット
+git commit -m "コミットメッセージ"
+
+GitHubへPush
+git push origin main
+
+
+変更状況確認
+git status
+
+履歴確認
+git log
+
+最新コードを取得
+git pull origin main
+
+ブランチ確認
+git branch
+
+ブランチ作成
+git checkout -b feature/login
+
+ブランチ切り替え
+git checkout main
+
+変更を一時保存
+git stash
+
+変更を戻す
+git stash pop
