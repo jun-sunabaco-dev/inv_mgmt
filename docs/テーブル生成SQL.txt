@@ -1,0 +1,50 @@
+-- 担当マスタ
+CREATE TABLE tm_tanto (
+    user_id INT(4) NOT NULL,
+    user_name VARCHAR(10) NOT NULL,
+    authority INT(1) NOT NULL COMMENT '1:管理者 2:ユーザ',
+    password VARCHAR(10) NOT NULL,
+    update_time DATETIME,
+    
+    PRIMARY KEY (user_id)
+);
+
+
+
+-- 品目マスタ
+CREATE TABLE tm_hinmoku (
+    hinmoku_cd INT(4) NOT NULL,
+    hinmoku_name VARCHAR(250) NOT NULL,
+    now_count DECIMAL(8,2),
+    tani VARCHAR(10),
+    alert_count DECIMAL(8,2),
+    update_user_id INT(4),
+    update_time DATETIME,
+    
+    PRIMARY KEY (hinmoku_cd),
+
+    CONSTRAINT fk_hinmoku_user
+        FOREIGN KEY (update_user_id)
+        REFERENCES tm_tanto(user_id)
+);
+
+
+-- 入出庫テーブル
+CREATE TABLE td_inout (
+    den_no INT(8) NOT NULL,
+    hinmoku_cd INT(4) NOT NULL,
+    inout_kbn INT(1) NOT NULL COMMENT '1:入庫 2:出庫 3:調整',
+    count DECIMAL(8,2) NOT NULL,
+    update_user_id INT(4) NOT NULL,
+    update_time DATETIME NOT NULL,
+    
+    PRIMARY KEY (den_no),
+
+    CONSTRAINT fk_inout_hinmoku
+        FOREIGN KEY (hinmoku_cd)
+        REFERENCES tm_hinmoku(hinmoku_cd),
+
+    CONSTRAINT fk_inout_user
+        FOREIGN KEY (update_user_id)
+        REFERENCES tm_tanto(user_id)
+);
