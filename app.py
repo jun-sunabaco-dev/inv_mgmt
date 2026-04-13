@@ -273,23 +273,79 @@ def inout_edit(den_no):
     error = ""
 
     if request.method == "POST":
-        item.hinmoku_cd = request.form.get("hinmoku_cd")
-        item.inout_kbn = request.form.get("inout_kbn")
-        item.count = request.form.get("count")        
-        item.update_time = datetime.now()
-        item.update_user_id = session["user_id"]
+        try:
+            new_hinmoku_cd = int(request.form.get("hinmoku_cd"))
+            new_inout_kbn = int(request.form.get("inout_kbn"))
+            new_count = Decimal(request.form.get("count"))
 
-        db.session.commit()
-        return redirect(url_for("inout_input"))
+            if new_count <= 0:
+                error = "数量は0より大きい値を入力してください。"
+                return render_template("inout_edit.html", item=item, error=error)
+
+            old_hinmoku_cd = item.hinmoku_cd
+            old_inout_kbn = item.inout_kbn
+            old_count = Decimal(item.count)
+
+            old_hinmoku = Hinmoku.query.get_or_404(old_hinmoku_cd)
+            new_hinmoku = Hinmoku.query.get_or_404(new_hinmoku_cd)
+
+            # 1. 旧データの影響を戻す
+            if old_inout_kbn == 1:      # 入庫
+                old_hinmoku.now_count = Decimal(old_hinmoku.now_count) - old_count
+            elif old_inout_kbn == 2:    # 出庫
+                old_hinmoku.now_count = Decimal(old_hinmoku.now_count) + old_count
+            elif old_inout_kbn == 3:    # 調整
+                old_hinmoku.now_count = Decimal(old_hinmoku.now_count) - old_count
+
+            # 2. 新データの影響を反映
+            if new_inout_kbn == 1:      # 入庫
+                new_hinmoku.now_count = Decimal(new_hinmoku.now_count) + new_count
+            elif new_inout_kbn == 2:    # 出庫
+                if Decimal(new_hinmoku.now_count) < new_count:
+                    error = "在庫不足のため出庫できません。"
+                    db.session.rollback()
+                    return render_template("inout_edit.html", item=item, error=error)
+                new_hinmoku.now_count = Decimal(new_hinmoku.now_count) - new_count
+            elif new_inout_kbn == 3:    # 調整
+                new_hinmoku.now_count = Decimal(new_hinmoku.now_count) + new_count
+            else:
+                error = "入出庫区分が不正です。"
+                return render_template("inout_edit.html", item=item, error=error)
+
+            # 3. 履歴を更新
+            item.hinmoku_cd = new_hinmoku_cd
+            item.inout_kbn = new_inout_kbn
+            item.count = new_count
+            item.update_time = datetime.now()
+            item.update_user_id = session["user_id"]
+
+            db.session.commit()
+            return redirect(url_for("inout_input"))
+
+        except Exception as e:
+            db.session.rollback()
+            error = f"更新に失敗しました: {e}"
 
     return render_template("inout_edit.html", item=item, error=error)
 
+
 @app.route("/inout/delete/<int:den_no>", methods=["POST"])
 def inout_delete(den_no):
-    if "user_id" not in session:
-        return redirect(url_for("login"))
 
     item = Inout.query.get_or_404(den_no)
+
+    hinmoku = Hinmoku.query.get(item.hinmoku_cd)
+
+    # 在庫を戻す処理
+    if item.inout_kbn == 1:      # 入庫
+        hinmoku.now_count -= item.count
+
+    elif item.inout_kbn == 2:    # 出庫
+        hinmoku.now_count += item.count
+
+    elif item.inout_kbn == 3:    # 調整
+        hinmoku.now_count -= item.count
+
     db.session.delete(item)
     db.session.commit()
 
