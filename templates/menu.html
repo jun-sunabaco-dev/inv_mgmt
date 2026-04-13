@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>メニュー</title>
+</head>
+<body>
+    <div style="text-align:right;">
+        ログインユーザ：{{ user_name }}
+    </div>
+
+    <h1>メニュー</h1>
+
+    <ul>
+        <li><a href="{{ url_for('inout_input') }}">入出庫入力</a></li>
+        <li><a href="{{ url_for('alert_list') }}">発注アラート一覧</a></li>
+        <li><a href="{{ url_for('hinmoku_list') }}">品目マスタ</a></li>
+        {% if authority == 1 %}
+            <li><a href="{{ url_for('tanto_list') }}">担当マスタ</a></li>
+        {% endif %}
+    </ul>
+
+    <a href="{{ url_for('logout') }}">ログアウト</a>
+</body>
+</html>

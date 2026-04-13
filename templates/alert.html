@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>発注アラート一覧</title>
+</head>
+
+<body>
+
+<div style="text-align:right;">
+ログインユーザ：{{ session["user_name"] }}
+</div>
+
+<h1>発注アラート一覧</h1>
+
+<table border="1">
+<tr>
+<th>品目コード</th>
+<th>品目名</th>
+<th>現在数量</th>
+<th>単位</th>
+<th>発注点</th>
+</tr>
+
+{% for item in items %}
+<tr>
+<td>{{ item.hinmoku_cd }}</td>
+<td>{{ item.hinmoku_name }}</td>
+<td>{{ item.now_count }}</td>
+<td>{{ item.tani }}</td>
+<td>{{ item.alert_count }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<br>
+
+<a href="{{ url_for('menu') }}">メニューへ戻る</a>
+
+</body>
+</html>

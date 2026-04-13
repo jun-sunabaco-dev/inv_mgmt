@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>担当マスタ</title>
+</head>
+<body>
+    <div style="text-align:right;">
+        ログインユーザ：{{ session["user_name"] }}
+    </div>
+
+    <h1>担当マスタ</h1>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <h2>新規登録</h2>
+    <form method="post">
+        <div>
+            <label>ユーザID</label>
+            <input type="number" name="user_id" required>
+        </div>
+        <div>
+            <label>ユーザ名</label>
+            <input type="text" name="user_name" required>
+        </div>
+        <div>
+            <label>パスワード</label>
+            <!-- <input type="text" name="password_hash" required> -->
+             <input type="password" name="password" required>
+        </div>
+        <div>
+            <label>権限</label>
+            <input type="number" name="authority" required>
+        </div>
+        <div>
+            <button type="submit">登録</button>
+        </div>
+    </form>
+
+    <h2>一覧</h2>
+    <table border="1">
+        <tr>
+            <th>ユーザID</th>
+            <th>ユーザ名</th>
+            <th>パスワード</th>
+            <th>権限</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.user_id }}</td>
+            <td>{{ item.user_name }}</td>
+            <td>●●●●</td>
+            <td>{{ item.authority }}</td>
+            <td>
+                <a href="{{ url_for('tanto_edit', user_id=item.user_id) }}">編集</a>
+
+                <form method="post"
+                      action="{{ url_for('tanto_delete', user_id=item.user_id) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('削除しますか？');">
+                    <button type="submit">削除</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{{ url_for('menu') }}">メニューへ戻る</a>
+</body>
+</html>

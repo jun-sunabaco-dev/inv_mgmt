@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>入出庫入力</title>
+</head>
+<body>
+    <div style="text-align:right;">
+        ログインユーザ：{{ session["user_name"] }}
+    </div>
+
+    <h1>入出庫入力</h1>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    {% if message %}
+        <p style="color:blue;">{{ message }}</p>
+    {% endif %}
+
+    <form method="post">
+        <div>
+            <label>品目</label>
+            <select name="hinmoku_cd" required>
+                <option value="">選択してください</option>
+                {% for item in hinmoku_items %}
+                <option value="{{ item.hinmoku_cd }}">
+                    {{ item.hinmoku_cd }} : {{ item.hinmoku_name }} （現在在庫: {{ item.now_count }} {{ item.tani }}）
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>数量</label>
+            <input type="number" step="0.01" name="quantity" required>
+        </div>
+
+        <div>
+            <button type="submit" name="action" value="nyuko">入庫</button>
+            <button type="submit" name="action" value="shukko">出庫</button>
+            <button type="submit" name="action" value="tyousei">調整</button>
+        </div>
+    </form>
+
+    <h2>一覧</h2>
+    <table border="1">
+        <tr>
+            <th>伝票No</th>
+            <th>品目CD</th>
+            <th>品目名</th>
+            <th>入力区分</th>
+            <th>数量</th>
+            <th>単位</th>
+            <th>更新日時</th>
+            <th>更新ユーザ</th>
+            <th>操作</th>
+        </tr>
+        {% for item in inout_items %}
+        <tr>
+        	<td>{{ item.den_no }}</td>
+            <td>{{ item.hinmoku_cd }}</td>
+            
+            <td>{{ item.hinmoku.hinmoku_name }}</td>
+
+            <td>
+                {% if item.inout_kbn == 1 %}
+                    入庫
+                {% elif item.inout_kbn == 2 %}
+                    出庫
+                {% elif item.inout_kbn == 3 %}
+                    調整
+                {% endif %}
+            </td>
+            
+            <td>{{ item.count }}</td>
+            <td>{{ item.hinmoku.tani }}</td>
+
+            <td>{{ item.update_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ item.tanto.user_name }}</td>
+
+            <td>
+                <a href="{{ url_for('inout_edit', den_no=item.den_no) }}">編集</a>
+
+                <form method="post"
+                      action="{{ url_for('inout_delete', den_no=item.den_no) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('削除しますか？');">
+                    <button type="submit">削除</button>
+                </form>
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <br>
+
+    <a href="{{ url_for('menu') }}">メニューへ戻る</a>
+</body>
+</html>

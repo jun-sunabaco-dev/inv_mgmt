@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>担当編集</title>
+</head>
+<body>
+    <div style="text-align:right;">
+        ログインユーザ：{{ session["user_name"] }}
+    </div>
+
+    <h1>担当編集</h1>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+        <div>
+            <label>ユーザID</label>
+            <input type="number" name="user_id" value="{{ item.user_id }}" readonly>
+        </div>
+        <div>
+            <label>ユーザ名</label>
+            <input type="text" name="user_name" value="{{ item.user_name }}" required>
+        </div>
+        <div>
+            <label>パスワード</label>
+            <input type="password" name="password" placeholder="変更する場合のみ入力">
+            <!-- <input type="number" name="password_hash" value="{{ item.password_hash }}" required> -->
+        </div>
+        <div>
+            <label>権限</label>
+            <input type="text" name="authority" value="{{ item.authority }}" required>
+        </div>
+        <div>
+            <button type="submit">更新</button>
+        </div>
+    </form>
+
+    <br>
+    <a href="{{ url_for('tanto_list') }}">担当マスタへ戻る</a>
+</body>
+</html>
