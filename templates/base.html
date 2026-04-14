@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}喫茶店 在庫管理{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="container header-inner">
+            <div class="brand">
+                <a href="{{ url_for('menu') }}">☕ 喫茶店 在庫管理</a>
+            </div>
+
+            {% if session.get("user_name") or user_name %}
+            <div class="header-user">
+                <span class="user-name">
+                    ログイン中：{{ session.get("user_name", user_name) }}
+                </span>
+                <a class="btn btn-outline btn-sm" href="{{ url_for('logout') }}">ログアウト</a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="container page">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

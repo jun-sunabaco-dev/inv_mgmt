@@ -1,25 +1,31 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>メニュー</title>
-</head>
-<body>
-    <div style="text-align:right;">
-        ログインユーザ：{{ user_name }}
-    </div>
+{% extends "base.html" %}
 
-    <h1>メニュー</h1>
+{% block title %}メニュー | 喫茶店 在庫管理{% endblock %}
 
-    <ul>
-        <li><a href="{{ url_for('inout_input') }}">入出庫入力</a></li>
-        <li><a href="{{ url_for('alert_list') }}">発注アラート一覧</a></li>
-        <li><a href="{{ url_for('hinmoku_list') }}">品目マスタ</a></li>
-        {% if authority == 1 %}
-            <li><a href="{{ url_for('tanto_list') }}">担当マスタ</a></li>
-        {% endif %}
-    </ul>
+{% block content %}
+<h1 class="page-title">メニュー</h1>
 
-    <a href="{{ url_for('logout') }}">ログアウト</a>
-</body>
-</html>
+<div class="menu-grid">
+    <a class="menu-card" href="{{ url_for('inout_input') }}">
+        <div class="menu-card-title">入出庫入力</div>
+        <div class="menu-card-text">入庫・出庫・調整の登録と履歴確認を行います。</div>
+    </a>
+
+    <a class="menu-card" href="{{ url_for('alert_list') }}">
+        <div class="menu-card-title">発注アラート一覧</div>
+        <div class="menu-card-text">発注点を下回った品目を確認します。</div>
+    </a>
+
+    <a class="menu-card" href="{{ url_for('hinmoku_list') }}">
+        <div class="menu-card-title">品目マスタ</div>
+        <div class="menu-card-text">品目の登録・編集・削除を行います。</div>
+    </a>
+
+    {% if authority == 1 %}
+    <a class="menu-card" href="{{ url_for('tanto_list') }}">
+        <div class="menu-card-title">担当マスタ</div>
+        <div class="menu-card-text">担当者情報と権限を管理します。</div>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

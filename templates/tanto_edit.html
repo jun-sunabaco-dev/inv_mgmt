@@ -1,44 +1,69 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>担当編集</title>
-</head>
-<body>
-    <div style="text-align:right;">
-        ログインユーザ：{{ session["user_name"] }}
-    </div>
+{% extends "base.html" %}
 
-    <h1>担当編集</h1>
+{% block title %}担当編集{% endblock %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+{% block content %}
 
-    <form method="post">
-        <div>
-            <label>ユーザID</label>
-            <input type="number" name="user_id" value="{{ item.user_id }}" readonly>
-        </div>
-        <div>
-            <label>ユーザ名</label>
-            <input type="text" name="user_name" value="{{ item.user_name }}" required>
-        </div>
-        <div>
-            <label>パスワード</label>
-            <input type="password" name="password" placeholder="変更する場合のみ入力">
-            <!-- <input type="number" name="password_hash" value="{{ item.password_hash }}" required> -->
-        </div>
-        <div>
-            <label>権限</label>
-            <input type="text" name="authority" value="{{ item.authority }}" required>
-        </div>
-        <div>
-            <button type="submit">更新</button>
-        </div>
-    </form>
+<div class="page-header">
+<h1 class="page-title">担当編集</h1>
 
-    <br>
-    <a href="{{ url_for('tanto_list') }}">担当マスタへ戻る</a>
-</body>
-</html>
+<a class="btn btn-primary btn-sm"
+href="{{ url_for('tanto_list') }}">
+担当マスタへ戻る
+</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+
+<form method="post">
+
+<div class="form-grid">
+
+<label>ユーザID</label>
+<input type="number"
+name="user_id"
+value="{{ item.user_id }}"
+readonly>
+
+<label>ユーザ名</label>
+<input type="text"
+name="user_name"
+value="{{ item.user_name }}"
+required>
+
+<label>パスワード</label>
+<input type="password"
+name="password"
+placeholder="変更する場合のみ入力">
+
+<label>権限</label>
+
+<select name="authority">
+
+<option value="1"
+{% if item.authority == 1 %}selected{% endif %}>
+管理者
+</option>
+
+<option value="2"
+{% if item.authority == 2 %}selected{% endif %}>
+一般
+</option>
+
+</select>
+
+</div>
+
+<div class="form-actions">
+<button class="btn btn-success">更新</button>
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

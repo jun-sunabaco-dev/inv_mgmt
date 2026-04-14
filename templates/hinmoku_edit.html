@@ -1,47 +1,59 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>品目編集</title>
-</head>
-<body>
-    <div style="text-align:right;">
-        ログインユーザ：{{ session["user_name"] }}
-    </div>
+{% extends "base.html" %}
 
-    <h1>品目編集</h1>
+{% block title %}品目編集{% endblock %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+{% block content %}
 
-    <form method="post">
-        <div>
-            <label>品目コード</label>
-            <input type="number" name="hinmoku_cd" value="{{ item.hinmoku_cd }}" readonly>
-        </div>
-        <div>
-            <label>品目名</label>
-            <input type="text" name="hinmoku_name" value="{{ item.hinmoku_name }}" required>
-        </div>
-        <div>
-            <label>現在数量</label>
-            <input type="number" step="0.01" name="now_count" value="{{ item.now_count }}" required>
-        </div>
-        <div>
-            <label>単位</label>
-            <input type="text" name="tani" value="{{ item.tani }}" required>
-        </div>
-        <div>
-            <label>発注点</label>
-            <input type="number" step="0.01" name="alert_count" value="{{ item.alert_count }}" required>
-        </div>
-        <div>
-            <button type="submit">更新</button>
-        </div>
-    </form>
+<div class="page-header">
+<h1 class="page-title">品目編集</h1>
 
-    <br>
-    <a href="{{ url_for('hinmoku_list') }}">品目マスタへ戻る</a>
-</body>
-</html>
+<a class="btn btn-primary btn-sm"
+href="{{ url_for('hinmoku_list') }}">
+品目マスタへ戻る
+</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+
+<form method="post">
+
+<div class="form-grid">
+
+<label>品目コード</label>
+<input type="number" name="hinmoku_cd"
+value="{{ item.hinmoku_cd }}" readonly>
+
+<label>品目名</label>
+<input type="text" name="hinmoku_name"
+value="{{ item.hinmoku_name }}" required>
+
+<label>現在数量</label>
+<input type="number" step="0.01"
+name="now_count"
+value="{{ item.now_count }}" required>
+
+<label>単位</label>
+<input type="text"
+name="tani"
+value="{{ item.tani }}" required>
+
+<label>発注点</label>
+<input type="number" step="0.01"
+name="alert_count"
+value="{{ item.alert_count }}" required>
+
+</div>
+
+<div class="form-actions">
+<button class="btn btn-success">更新</button>
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

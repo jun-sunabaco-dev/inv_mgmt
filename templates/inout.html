@@ -1,138 +1,277 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>入出庫入力</title>
-</head>
+{% extends "base.html" %}
+
+{% block title %}入出庫入力{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+<h1 class="page-title">入出庫入力</h1>
+
+<a class="btn btn-primary btn-sm"
+href="{{ url_for('menu') }}">
+メニューへ戻る
+</a>
+
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if message %}
+<div class="alert alert-success">{{ message }}</div>
+{% endif %}
+
+<div class="card">
+
+<h2 class="section-title">入力</h2>
+
+<form method="post">
+
+<div class="form-grid">
+
+<label>品目</label>
+
+<div>
+
+<select name="hinmoku_cd"
+id="hinmoku_cd"
+onchange="onHinmokuChange()"
+required>
+
+<option value="">選択してください</option>
+
+{% for item in hinmoku_items %}
+
+<option
+value="{{ item.hinmoku_cd }}"
+data-now-count="{{ item.now_count }}"
+data-tani="{{ item.tani }}">
+
+{{ item.hinmoku_cd }} : {{ item.hinmoku_name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<span id="current-stock" class="stock-box">
+現在在庫：-
+</span>
+
+</div>
+
+<label>数量</label>
+
+<input type="number"
+step="0.01"
+name="quantity"
+required>
+
+</div>
+
+<div class="form-actions">
+
+<button type="submit"
+name="action"
+value="nyuko"
+class="btn btn-success">
+
+入庫
+
+</button>
+
+<button type="submit"
+name="action"
+value="shukko"
+class="btn btn-warning">
+
+出庫
+
+</button>
+
+<button type="submit"
+name="action"
+value="tyousei"
+class="btn btn-secondary">
+
+調整
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<div class="card">
+
+<h2 class="section-title">一覧</h2>
+
+<p id="filter-result-count"></p>
+
+<div class="table-wrap">
+
+<table class="table">
+
+<thead>
+
+<tr>
+
+<th>伝票No</th>
+<th>品目CD</th>
+<th>品目名</th>
+<th>入力区分</th>
+<th>数量</th>
+<th>単位</th>
+<th>更新日時</th>
+<th>更新ユーザ</th>
+<th>操作</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in inout_items %}
+
+<tr data-hinmoku-cd="{{ item.hinmoku_cd }}">
+
+<td class="text-right">{{ item.den_no }}</td>
+
+<td class="text-right">{{ item.hinmoku_cd }}</td>
+
+<td>{{ item.hinmoku.hinmoku_name }}</td>
+
+<td>
+
+{% if item.inout_kbn == 1 %}
+<span class="badge badge-success">入庫</span>
+{% elif item.inout_kbn == 2 %}
+<span class="badge badge-danger">出庫</span>
+{% elif item.inout_kbn == 3 %}
+<span class="badge badge-info">調整</span>
+{% endif %}
+
+</td>
+
+<td class="text-right">{{ item.count }}</td>
+
+<td>{{ item.hinmoku.tani }}</td>
+
+<td>{{ item.update_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+
+<td>{{ item.tanto.user_name }}</td>
+
+<td>
+
+<a class="btn btn-primary btn-sm"
+href="{{ url_for('inout_edit', den_no=item.den_no) }}">
+編集
+</a>
+
+<form method="post"
+action="{{ url_for('inout_delete', den_no=item.den_no) }}"
+style="display:inline;"
+onsubmit="return confirm('削除しますか？');">
+
+<button type="submit"
+class="btn btn-danger btn-sm">
+削除
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
 
 <script>
-    function updateCurrentStock() {
-        const select = document.getElementById("hinmoku_cd");
-        const stock = document.getElementById("current-stock");
 
-        if (!select || !stock) {
-            return;
-        }
+function updateCurrentStock(){
 
-        const option = select.options[select.selectedIndex];
+const select = document.getElementById("hinmoku_cd");
+const stock = document.getElementById("current-stock");
 
-        if (!option || option.value === "") {
-            stock.textContent = "現在在庫：-";
-            return;
-        }
+const option = select.options[select.selectedIndex];
 
-        const nowCount = option.getAttribute("data-now-count");
-        const tani = option.getAttribute("data-tani");
+if(option.value === ""){
 
-        stock.textContent = "現在在庫：" + nowCount + " " + tani;
-    }
+stock.textContent = "現在在庫：-";
+return;
 
-    window.onload = function() {
-        updateCurrentStock();
-    };
+}
+
+const nowCount = option.getAttribute("data-now-count");
+const tani = option.getAttribute("data-tani");
+
+stock.textContent = "現在在庫：" + nowCount + " " + tani;
+
+}
+
+function filterInoutList(){
+
+const select = document.getElementById("hinmoku_cd");
+const selectedCd = select.value;
+
+const rows = document.querySelectorAll("tbody tr[data-hinmoku-cd]");
+const countArea = document.getElementById("filter-result-count");
+
+let visibleCount = 0;
+
+rows.forEach(row => {
+
+const rowCd = row.getAttribute("data-hinmoku-cd");
+
+if(selectedCd === "" || rowCd === selectedCd){
+
+row.style.display = "";
+visibleCount++;
+
+}else{
+
+row.style.display = "none";
+
+}
+
+});
+
+if(countArea){
+
+countArea.textContent = "表示件数：" + visibleCount + "件";
+
+}
+
+}
+
+function onHinmokuChange(){
+
+updateCurrentStock();
+filterInoutList();
+
+}
+
+window.onload = function(){
+
+updateCurrentStock();
+filterInoutList();
+
+}
+
 </script>
 
-<body>
-    <div style="text-align:right;">
-        ログインユーザ：{{ session["user_name"] }}
-    </div>
-
-    <h1>入出庫入力</h1>
-
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
-
-    {% if message %}
-        <p style="color:blue;">{{ message }}</p>
-    {% endif %}
-
-    <form method="post">
-        <div>
-            <label>品目</label>
-            <select name="hinmoku_cd" id="hinmoku_cd" onchange="updateCurrentStock()" required>
-                <option value="">選択してください</option>
-                {% for item in hinmoku_items %}
-                <option
-                    value="{{ item.hinmoku_cd }}"
-                    data-now-count="{{ item.now_count }}"
-                    data-tani="{{ item.tani }}"
-                >
-                    {{ item.hinmoku_cd }} : {{ item.hinmoku_name }}
-                </option>
-                {% endfor %}
-            </select>
-
-            <span id="current-stock" style="margin-left: 12px; font-weight: bold;">
-                現在在庫：-
-            </span>
-        </div>
-
-        <div>
-            <label>数量</label>
-            <input type="number" step="0.01" name="quantity" required>
-        </div>
-
-        <div>
-            <button type="submit" name="action" value="nyuko">入庫</button>
-            <button type="submit" name="action" value="shukko">出庫</button>
-            <button type="submit" name="action" value="tyousei">調整</button>
-        </div>
-    </form>
-
-    <h2>一覧</h2>
-    <table border="1">
-        <tr>
-            <th>伝票No</th>
-            <th>品目CD</th>
-            <th>品目名</th>
-            <th>入力区分</th>
-            <th>数量</th>
-            <th>単位</th>
-            <th>更新日時</th>
-            <th>更新ユーザ</th>
-            <th>操作</th>
-        </tr>
-        {% for item in inout_items %}
-        <tr>
-        	<td>{{ item.den_no }}</td>
-            <td>{{ item.hinmoku_cd }}</td>
-            
-            <td>{{ item.hinmoku.hinmoku_name }}</td>
-
-            <td>
-                {% if item.inout_kbn == 1 %}
-                    入庫
-                {% elif item.inout_kbn == 2 %}
-                    出庫
-                {% elif item.inout_kbn == 3 %}
-                    調整
-                {% endif %}
-            </td>
-            
-            <td>{{ item.count }}</td>
-            <td>{{ item.hinmoku.tani }}</td>
-
-            <td>{{ item.update_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            <td>{{ item.tanto.user_name }}</td>
-
-            <td>
-                <a href="{{ url_for('inout_edit', den_no=item.den_no) }}">編集</a>
-
-                <form method="post"
-                      action="{{ url_for('inout_delete', den_no=item.den_no) }}"
-                      style="display:inline;"
-                      onsubmit="return confirm('削除しますか？');">
-                    <button type="submit">削除</button>
-                </form>
-            </td>
-            
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <br>
-
-    <a href="{{ url_for('menu') }}">メニューへ戻る</a>
-</body>
-</html>
+{% endblock %}

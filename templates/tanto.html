@@ -1,73 +1,127 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>担当マスタ</title>
-</head>
-<body>
-    <div style="text-align:right;">
-        ログインユーザ：{{ session["user_name"] }}
-    </div>
+{% extends "base.html" %}
 
-    <h1>担当マスタ</h1>
+{% block title %}担当マスタ{% endblock %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+{% block content %}
+<div class="page-header">
+<h1 class="page-title">担当マスタ</h1>
+<a class="btn btn-primary" href="{{ url_for('menu') }}">
+メニューへ戻る
+</a>
+</div>
 
-    <h2>新規登録</h2>
-    <form method="post">
-        <div>
-            <label>ユーザID</label>
-            <input type="number" name="user_id" required>
-        </div>
-        <div>
-            <label>ユーザ名</label>
-            <input type="text" name="user_name" required>
-        </div>
-        <div>
-            <label>パスワード</label>
-            <!-- <input type="text" name="password_hash" required> -->
-             <input type="password" name="password" required>
-        </div>
-        <div>
-            <label>権限</label>
-            <input type="number" name="authority" required>
-        </div>
-        <div>
-            <button type="submit">登録</button>
-        </div>
-    </form>
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
 
-    <h2>一覧</h2>
-    <table border="1">
-        <tr>
-            <th>ユーザID</th>
-            <th>ユーザ名</th>
-            <th>パスワード</th>
-            <th>権限</th>
-        </tr>
-        {% for item in items %}
-        <tr>
-            <td>{{ item.user_id }}</td>
-            <td>{{ item.user_name }}</td>
-            <td>●●●●</td>
-            <td>{{ item.authority }}</td>
-            <td>
-                <a href="{{ url_for('tanto_edit', user_id=item.user_id) }}">編集</a>
+<div class="grid-2">
 
-                <form method="post"
-                      action="{{ url_for('tanto_delete', user_id=item.user_id) }}"
-                      style="display:inline;"
-                      onsubmit="return confirm('削除しますか？');">
-                    <button type="submit">削除</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+<div class="card">
 
-    <br>
-    <a href="{{ url_for('menu') }}">メニューへ戻る</a>
-</body>
-</html>
+<h2 class="section-title">新規登録</h2>
+
+<form method="post">
+
+<div class="form-grid">
+
+<label>ユーザID</label>
+<input type="number" name="user_id" required>
+
+<label>ユーザ名</label>
+<input type="text" name="user_name" required>
+
+<label>パスワード</label>
+<input type="password" name="password" required>
+
+<label>権限</label>
+
+<select name="authority" required>
+<option value="1">管理者</option>
+<option value="2">一般</option>
+</select>
+
+</div>
+
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">登録</button>
+</div>
+
+</form>
+
+</div>
+
+<div class="card">
+
+<h2 class="section-title">一覧</h2>
+
+<div class="table-wrap">
+
+<table class="table">
+
+<thead>
+<tr>
+<th>ユーザID</th>
+<th>ユーザ名</th>
+<th>パスワード</th>
+<th>権限</th>
+<th>操作</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for item in items %}
+
+<tr>
+
+<td class="text-right">{{ item.user_id }}</td>
+
+<td>{{ item.user_name }}</td>
+
+<td>●●●●</td>
+
+<td>
+{% if item.authority == 1 %}
+<span class="badge badge-warning">管理者</span>
+{% else %}
+<span class="badge badge-info">一般</span>
+{% endif %}
+</td>
+
+<td>
+
+<a class="btn btn-primary btn-sm"
+href="{{ url_for('tanto_edit', user_id=item.user_id) }}">
+編集
+</a>
+
+<form method="post"
+action="{{ url_for('tanto_delete', user_id=item.user_id) }}"
+style="display:inline;"
+onsubmit="return confirm('削除しますか？');">
+
+<button class="btn btn-danger btn-sm">削除</button>
+
+</form>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<div style="margin-top:20px;">
+<a class="btn btn-primary" href="{{ url_for('menu') }}">メニューへ戻る</a>
+</div>
+
+{% endblock %}
