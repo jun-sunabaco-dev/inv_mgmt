@@ -1,50 +1,81 @@
 -- 担当マスタ
-CREATE TABLE tm_tanto (
-    user_id INT(4) NOT NULL,
-    user_name VARCHAR(10) NOT NULL,
-    authority INT(1) NOT NULL COMMENT '1:管理者 2:ユーザ',
-    password VARCHAR(10) NOT NULL,
-    update_time DATETIME,
-    
-    PRIMARY KEY (user_id)
-);
+-- Table: public.tm_tanto
+
+-- DROP TABLE IF EXISTS public.tm_tanto;
+
+CREATE TABLE IF NOT EXISTS public.tm_tanto
+(
+    user_id integer NOT NULL,
+    user_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    password_hash character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    authority smallint NOT NULL,
+    update_time timestamp without time zone,
+    update_user_id integer,
+    CONSTRAINT tm_tanto_pkey PRIMARY KEY (user_id),
+    CONSTRAINT tm_tanto_authority_check CHECK (authority = ANY (ARRAY[1, 2]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.tm_tanto
+    OWNER to postgres;
 
 
 
 -- 品目マスタ
-CREATE TABLE tm_hinmoku (
-    hinmoku_cd INT(4) NOT NULL,
-    hinmoku_name VARCHAR(250) NOT NULL,
-    now_count DECIMAL(8,2),
-    tani VARCHAR(10),
-    alert_count DECIMAL(8,2),
-    update_user_id INT(4),
-    update_time DATETIME,
-    
-    PRIMARY KEY (hinmoku_cd),
+-- Table: public.tm_hinmoku
 
-    CONSTRAINT fk_hinmoku_user
-        FOREIGN KEY (update_user_id)
-        REFERENCES tm_tanto(user_id)
-);
+-- DROP TABLE IF EXISTS public.tm_hinmoku;
+
+CREATE TABLE IF NOT EXISTS public.tm_hinmoku
+(
+    hinmoku_cd integer NOT NULL,
+    hinmoku_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    now_count numeric(10,2) NOT NULL DEFAULT 0,
+    tani character varying(20) COLLATE pg_catalog."default",
+    alert_count numeric(10,2) NOT NULL DEFAULT 0,
+    update_time timestamp without time zone,
+    update_user_id integer,
+    CONSTRAINT tm_hinmok_pkey PRIMARY KEY (hinmoku_cd),
+    CONSTRAINT fk_hinmoku_update_user FOREIGN KEY (update_user_id)
+        REFERENCES public.tm_tanto (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.tm_hinmoku
+    OWNER to postgres;
 
 
 -- 入出庫テーブル
-CREATE TABLE td_inout (
-    den_no INT(8) NOT NULL,
-    hinmoku_cd INT(4) NOT NULL,
-    inout_kbn INT(1) NOT NULL COMMENT '1:入庫 2:出庫 3:調整',
-    count DECIMAL(8,2) NOT NULL,
-    update_user_id INT(4) NOT NULL,
-    update_time DATETIME NOT NULL,
-    
-    PRIMARY KEY (den_no),
+-- Table: public.td_inout
 
-    CONSTRAINT fk_inout_hinmoku
-        FOREIGN KEY (hinmoku_cd)
-        REFERENCES tm_hinmoku(hinmoku_cd),
+-- DROP TABLE IF EXISTS public.td_inout;
 
-    CONSTRAINT fk_inout_user
-        FOREIGN KEY (update_user_id)
-        REFERENCES tm_tanto(user_id)
-);
+CREATE TABLE IF NOT EXISTS public.td_inout
+(
+    den_no integer NOT NULL DEFAULT nextval('t_inout_id_seq'::regclass),
+    hinmoku_cd integer NOT NULL,
+    inout_kbn smallint NOT NULL,
+    count numeric(10,2) NOT NULL,
+    update_time timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_user_id integer NOT NULL,
+    CONSTRAINT t_inout_pkey PRIMARY KEY (den_no),
+    CONSTRAINT fk_inout_hinmoku FOREIGN KEY (hinmoku_cd)
+        REFERENCES public.tm_hinmoku (hinmoku_cd) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fk_inout_user FOREIGN KEY (update_user_id)
+        REFERENCES public.tm_tanto (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT t_inout_count_check CHECK (count > 0::numeric),
+    CONSTRAINT t_inout_inout_kbn_check CHECK (inout_kbn = ANY (ARRAY[1, 2, 3]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.td_inout
+    OWNER to postgres;
