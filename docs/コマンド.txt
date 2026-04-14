@@ -34,3 +34,9 @@ git stash
 
 変更を戻す
 git stash pop
+
+app.py を実行する基本コマンド
+python app.py
+
+PG起動
+http://127.0.0.1:5000

@@ -129,13 +129,18 @@ def tanto_list():
     if request.method == "POST":
         user_id = request.form.get("user_id")
         user_name = request.form.get("user_name")
-        password_hash = request.form.get("password_hash")
+        password = request.form.get("password")
         authority = request.form.get("authority")
 
         exists = Tanto.query.filter_by(user_id=user_id).first()
         if exists:
             error = "そのユーザIDはすでに登録されています。"
         else:
+            password_hash = bcrypt.hashpw(
+                password.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
+
             item = Tanto(
                 user_id=user_id,
                 user_name=user_name,
@@ -162,7 +167,14 @@ def tanto_edit(user_id):
 
     if request.method == "POST":
         item.user_name = request.form.get("user_name")
-        item.password_hash = request.form.get("password_hash")
+
+        password = request.form.get("password")
+        if password:  # 入力がある時だけ更新
+            item.password_hash = bcrypt.hashpw(
+                password.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
+
         item.authority = request.form.get("authority")
         item.update_time = datetime.now()
         item.update_user_id = session["user_id"]

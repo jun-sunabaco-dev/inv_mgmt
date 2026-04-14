@@ -7,7 +7,7 @@ class Tanto(db.Model):
 
     user_id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(50))
-    password_hash = db.Column(db.String(255))
+    password_hash = db.Column(db.String(255), nullable=False)
     authority = db.Column(db.SmallInteger)
     update_time = db.Column(db.DateTime)
     update_user_id = db.Column(db.Integer)
