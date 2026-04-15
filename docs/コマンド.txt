@@ -1,10 +1,6 @@
 特定のファイルだけなら
 git add ファイル名
 
-GitHubへPush
-git push origin main
-
-
 変更状況確認
 git status
 
@@ -40,3 +36,6 @@ git add .
 
 コミット
 git commit -m "コミットメッセージ"
+
+GitHubへPush
+git push origin main
